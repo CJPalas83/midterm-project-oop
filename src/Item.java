@@ -1,8 +1,6 @@
 public abstract class Item {
     public static final int MIN_QUANTITY = 0;
     public static final int MAX_QUANTITY = 10000;
-    public static final double MIN_PRICE = 0.01;
-    public static final double MAX_PRICE = 1000000.00;
 
     private final String id;
     private final String name;
@@ -47,9 +45,10 @@ public abstract class Item {
     }
 
     public void updatePrice(double newPrice) {
-        if (Double.isNaN(newPrice) || Double.isInfinite(newPrice)
-                || newPrice < MIN_PRICE || newPrice > MAX_PRICE) {
-            throw new IllegalArgumentException("Price is outside the allowed range.");
+        Category category = getCategory();
+        if (!category.isPriceAllowed(newPrice)) {
+            throw new IllegalArgumentException(
+                    "Price is outside the allowed range for " + category.getDisplayName() + ".");
         }
         price = newPrice;
     }

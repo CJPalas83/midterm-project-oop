@@ -58,7 +58,7 @@ public class InventoryApp {
         while (addAnother) {
             ui.showMessage("\nAdd Item");
 
-            Category category = promptCategory("cancel");
+            Category category = promptCategory("Cancel");
             if (category == null) {
                 return;
             }
@@ -94,7 +94,7 @@ public class InventoryApp {
             }
 
             int quantity = promptQuantity("Enter quantity: ");
-            double price = promptPrice("Enter price: ");
+            double price = promptPrice("Enter price", category);
 
             Item addedItem = inventoryManager.addItem(category, id, name, quantity, price);
             ui.showMessage("Item added successfully!");
@@ -160,7 +160,7 @@ public class InventoryApp {
     private void updatePrice(Item item) {
         ui.showMessage("Current price: " + ui.formatPrice(item.getPrice()));
         while (true) {
-            double newPrice = promptPrice("Enter new price: ");
+            double newPrice = promptPrice("Enter new price", item.getCategory());
             if (Double.compare(newPrice, item.getPrice()) == 0) {
                 ui.showMessage("The new price is the same as the current price.");
                 ui.showMessage("Enter a different price.");
@@ -213,7 +213,7 @@ public class InventoryApp {
 
     private void handleDisplayByCategory() {
         ui.showMessage("\nDisplay Items by Category");
-        Category category = promptCategory("go back");
+        Category category = promptCategory("Back");
         if (category == null) {
             return;
         }
@@ -322,10 +322,14 @@ public class InventoryApp {
         }
     }
 
-    private Category promptCategory(String zeroAction) {
+    private Category promptCategory(String zeroOption) {
+        ui.showMenu("Select category:",
+                "1 / CLO - Clothing",
+                "2 / ELE - Electronics",
+                "3 / ENT - Entertainment",
+                "0       - " + zeroOption);
         while (true) {
-            String raw = ui.readLine("Enter category (Clothing, Electronics, Entertainment), or 0 to "
-                    + zeroAction + ": ");
+            String raw = ui.readLine("Category: ");
             if (isCancelCommand(raw)) {
                 return null;
             }
@@ -389,13 +393,17 @@ public class InventoryApp {
         }
     }
 
-    private double promptPrice(String prompt) {
+    private double promptPrice(String promptLabel, Category category) {
+        String minimumPrice = ui.formatPrice(category.getMinimumPrice());
+        String maximumPrice = ui.formatPrice(category.getMaximumPrice());
+        String priceRange = minimumPrice + " - " + maximumPrice;
         while (true) {
-            String raw = ui.readLine(prompt);
+            String raw = ui.readLine(promptLabel + " (" + priceRange + "): ");
             try {
-                return validator.parsePrice(raw);
+                return validator.parsePrice(raw, category);
             } catch (IllegalArgumentException exception) {
-                ui.showMessage(exception.getMessage());
+                ui.showMessage("Enter a price from " + minimumPrice + " to " + maximumPrice
+                        + " with at most 2 decimal places.");
             }
         }
     }

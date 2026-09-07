@@ -100,24 +100,27 @@ public class InputValidator {
         }
     }
 
-    public double parsePrice(String raw) {
+    public double parsePrice(String raw, Category category) {
+        if (category == null) {
+            throw new IllegalArgumentException("A category is required to validate price.");
+        }
+
         String normalized = raw == null ? "" : raw.trim();
 
         // Syntax and precision are deliberately checked before parsing so the
         // user's original number of decimal places is not lost.
         if (!PRICE_PATTERN.matcher(normalized).matches()) {
-            throw priceException();
+            throw priceException(category);
         }
 
         try {
             double price = Double.parseDouble(normalized);
-            if (Double.isNaN(price) || Double.isInfinite(price)
-                    || price < Item.MIN_PRICE || price > Item.MAX_PRICE) {
+            if (!category.isPriceAllowed(price)) {
                 throw new NumberFormatException();
             }
             return price;
         } catch (NumberFormatException exception) {
-            throw priceException();
+            throw priceException(category);
         }
     }
 
@@ -132,8 +135,8 @@ public class InputValidator {
                         + "(example: ELE-27).");
     }
 
-    private IllegalArgumentException priceException() {
+    private IllegalArgumentException priceException(Category category) {
         return new IllegalArgumentException(
-                "Enter a price from 0.01 to 1,000,000.00 with at most 2 decimal places.");
+                "Enter a valid " + category.getDisplayName() + " price with at most 2 decimal places.");
     }
 }

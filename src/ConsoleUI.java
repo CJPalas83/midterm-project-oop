@@ -1,5 +1,4 @@
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -7,7 +6,7 @@ import java.util.Scanner;
 
 public class ConsoleUI {
     private static final int NAME_WIDTH = 24;
-    private static final String PESO_SYMBOL = "\u20B1";
+    private static final String CURRENCY_PREFIX = "P";
 
     private final Scanner scanner;
     private final PrintStream output;
@@ -15,11 +14,7 @@ public class ConsoleUI {
 
     public ConsoleUI() {
         scanner = new Scanner(System.in);
-        try {
-            output = new PrintStream(System.out, true, "UTF-8");
-        } catch (UnsupportedEncodingException exception) {
-            throw new IllegalStateException("UTF-8 output is not supported.", exception);
-        }
+        output = System.out;
         numberFormat = NumberFormat.getNumberInstance(Locale.US);
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
@@ -84,7 +79,7 @@ public class ConsoleUI {
     }
 
     public String formatPrice(double price) {
-        return PESO_SYMBOL + numberFormat.format(price);
+        return CURRENCY_PREFIX + numberFormat.format(price);
     }
 
     private String truncate(String value, int maximumLength) {
